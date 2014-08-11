@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using GildedRose.Console;
 using NUnit.Framework;
@@ -9,6 +10,85 @@ namespace GildedRose.Tests
 {
     public class when_i_update_items
     {
+
+        [TestFixture]
+        public class BetterTests
+        {
+
+            [Test]
+            public void QualityShouldBecomeZeroAfterOneDay()
+            {
+                var normalItem = ItemFactory.GenerateItem(ItemType.Normal, "normal item", 1, 1).UpdateQuality();
+                Assert.That(normalItem.Quality, Is.EqualTo(0));
+
+                var conjuredItem = ItemFactory.GenerateItem(ItemType.Conjured, "conjured item", 1, 2).UpdateQuality();
+                Assert.That(conjuredItem.Quality ,Is.EqualTo(0));
+
+                conjuredItem = ItemFactory.GenerateItem(ItemType.Conjured, "conjured item", 1, 1).UpdateQuality();
+                Assert.That(conjuredItem.Quality, Is.EqualTo(0));
+
+                var backstagePassItem =
+                    ItemFactory.GenerateItem(ItemType.BackstagePass, "le concert", 0, 50).UpdateQuality();
+                Assert.That(backstagePassItem.Quality, Is.EqualTo(0));
+
+            }
+
+            [Test]
+            public void QualityIsNeverLessThanZero()
+            {
+                var normalItem = ItemFactory.GenerateItem(ItemType.Normal, "normal item", 1, 1).UpdateQuality().UpdateQuality();
+                Assert.That(normalItem.Quality, Is.EqualTo(0));
+
+                var conjuredItem = ItemFactory.GenerateItem(ItemType.Conjured, "conjured item", 1, 2).UpdateQuality().UpdateQuality();
+                Assert.That(conjuredItem.Quality, Is.EqualTo(0));
+
+                conjuredItem = ItemFactory.GenerateItem(ItemType.Conjured, "conjured item", 1, 1).UpdateQuality().UpdateQuality();
+                Assert.That(conjuredItem.Quality, Is.EqualTo(0));
+
+                var backstagePassItem =
+                    ItemFactory.GenerateItem(ItemType.BackstagePass, "le concert", 0, 50)
+                        .UpdateQuality()
+                        .UpdateQuality();
+                Assert.That(backstagePassItem.Quality, Is.EqualTo(0));
+
+                var legendaryItem = ItemFactory.GenerateItem(ItemType.Legendary, "sulfuras", 100, 80).UpdateQuality();
+                Assert.That(legendaryItem.Quality, Is.EqualTo(80));
+            }
+
+            [Test]
+            public void QualityDegradesFasterAfterSellInPeriodIsOver()
+            {
+                var normalItem = ItemFactory.GenerateItem(ItemType.Normal, "normal item", 1, 3).UpdateQuality();
+                Assert.That(normalItem.Quality, Is.EqualTo(2));
+                normalItem = normalItem.UpdateQuality();
+                Assert.That(normalItem.Quality, Is.EqualTo(0));
+
+                var conjuredItem = ItemFactory.GenerateItem(ItemType.Conjured, "conjured item", 1, 6).UpdateQuality();
+                Assert.That(conjuredItem.Quality, Is.EqualTo(4));
+                conjuredItem = conjuredItem.UpdateQuality();
+                Assert.That(conjuredItem.Quality, Is.EqualTo(0));
+
+                var backstagePassItem =
+                    ItemFactory.GenerateItem(ItemType.BackstagePass, "le concert", 1, 50)
+                        .UpdateQuality();
+                Assert.That(backstagePassItem.Quality, Is.EqualTo(50));
+                backstagePassItem = backstagePassItem.UpdateQuality();
+                Assert.That(backstagePassItem.Quality, Is.EqualTo(0));
+            }
+
+            [Test]
+            public void QualityOfLegendaryItemsNeverChange()
+            {
+                var legendaryItem = ItemFactory.GenerateItem(ItemType.Legendary, "sulfuras", 100, 80).UpdateQuality();
+                Assert.That(legendaryItem.Quality, Is.EqualTo(80));
+
+                legendaryItem.SellIn = 0;
+                Assert.That(legendaryItem.Quality, Is.EqualTo(80));
+
+                legendaryItem.SellIn = -10;
+                Assert.That(legendaryItem.Quality, Is.EqualTo(80));
+            }
+        }
         [TestFixture]
         public class with_a_standard_item
         {
