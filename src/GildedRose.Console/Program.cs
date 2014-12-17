@@ -10,12 +10,12 @@ namespace GildedRose.Console
         {
             Items = new List<Item>
             {
-                new Item {Name = "+5 Dexterity Vest", SellIn = 10, Quality = 20},
-                new Item {Name = "Aged Brie", SellIn = 2, Quality = 0},
-                new Item {Name = "Elixir of the Mongoose", SellIn = 5, Quality = 7},
-                new Item {Name = "Sulfuras, Hand of Ragnaros", SellIn = 0, Quality = 80},
-                new Item {Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 15, Quality = 20},
-                new Item {Name = "Conjured Mana Cake", SellIn = 3, Quality = 6}
+                new StandardItem { Name = "+5 Dexterity Vest", SellIn = 10, Quality = 20},
+                new AgedBrieItem {Name = "Aged Brie", SellIn = 2, Quality = 0},
+                new StandardItem {Name = "Elixir of the Mongoose", SellIn = 5, Quality = 7},
+                new LegendaryItem {Name = "Sulfuras, Hand of Ragnaros", SellIn = 0, Quality = 80},
+                new BackstagePassItem {Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 15, Quality = 20},
+                new ConjuredItem() {Name = "Conjured Mana Cake", SellIn = 3, Quality = 6}
             };
         }
         static void Main()
@@ -41,72 +41,14 @@ namespace GildedRose.Console
         {
             foreach (var item in Items)
             {
-                if (item.Name != "Aged Brie" && item.Name != "Backstage passes to a TAFKAL80ETC concert")
-                {
-                    if (item.Quality > 0)
-                    {
-                        if (item.Name != "Sulfuras, Hand of Ragnaros")
-                        {
-                            item.Quality = item.Quality - 1;
-                        }
-                    }
-                }
-                else
-                {
-                    if (item.Quality < 50)
-                    {
-                        item.Quality = item.Quality + 1;
-
-                        if (item.Name == "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (item.SellIn < 11)
-                            {
-                                if (item.Quality < 50)
-                                {
-                                    item.Quality = item.Quality + 1;
-                                }
-                            }
-
-                            if (item.SellIn < 6)
-                            {
-                                if (item.Quality < 50)
-                                {
-                                    item.Quality = item.Quality + 1;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (item.Name != "Sulfuras, Hand of Ragnaros")
-                {
-                    item.SellIn = item.SellIn - 1;
-                }
-
-                if (item.SellIn >= 0) continue;
-                if (item.Name != "Aged Brie")
-                {
-                    if (item.Name != "Backstage passes to a TAFKAL80ETC concert")
-                    {
-                        if (item.Quality <= 0) continue;
-                        if (item.Name != "Sulfuras, Hand of Ragnaros")
-                        {
-                            item.Quality = item.Quality - 1;
-                        }
-                    }
-                    else
-                    {
-                        item.Quality = item.Quality - item.Quality;
-                    }
-                }
-                else
-                {
-                    if (item.Quality < 50)
-                    {
-                        item.Quality = item.Quality + 1;
-                    }
-                }
+                UpdateQuality(item);
             }
+        }
+
+        public Item UpdateQuality(Item item)
+        {
+            item.Update();
+            return item;
         }
     }
 
@@ -117,6 +59,67 @@ namespace GildedRose.Console
         public int SellIn { get; set; }
 
         public int Quality { get; set; }
+
+        public virtual void Update()
+        {
+            UpdateSellIn();
+            UpdateQuality();
+        }
+
+        protected virtual void UpdateSellIn()
+        {
+            if (SellIn > 0)
+                SellIn--;
+        }
+
+        protected virtual void UpdateQuality()
+        {
+            if (Quality <= 0) return;
+            if (SellIn == 0)
+                Quality -= 2;
+            else
+                Quality--;
+        }
     }
 
+    public class StandardItem : Item { }
+
+    public class AgedBrieItem : Item
+    {
+        protected override void UpdateQuality()
+        {
+            if (Quality < 50)
+                Quality++;
+        }
+    }
+
+    public class LegendaryItem : Item
+    {
+        public override void Update()
+        {
+            // do nothing
+        }
+    }
+
+    public class BackstagePassItem : Item
+    {
+        protected override void UpdateQuality()
+        {
+            if (SellIn > 10) Quality++;
+            else if (SellIn > 5) Quality += 2;
+            else if (SellIn > 0) Quality += 3;
+            else if (SellIn == 0) Quality = 0;
+        }
+    }
+
+    public class ConjuredItem : Item
+    {
+        protected override void UpdateQuality()
+        {
+            if (SellIn > 0)
+                Quality -= 2;
+            else
+                Quality -= 4;
+        }
+    }
 }
