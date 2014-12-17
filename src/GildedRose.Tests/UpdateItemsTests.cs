@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using GildedRose.Console;
 using NUnit.Framework;
 
@@ -147,7 +144,7 @@ namespace GildedRose.Tests
     {
         public static Item UpdateQuality(this Item item)
         {
-            var program = new Program { Items = new List<Item> { item } };
+            var program = new Program ();
             program.UpdateQuality();
 
             return item;
