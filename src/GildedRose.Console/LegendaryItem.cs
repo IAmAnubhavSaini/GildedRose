@@ -1,4 +1,6 @@
-﻿namespace GildedRose.Console
+﻿using System.Diagnostics;
+
+namespace GildedRose.Console
 {
     public class LegendaryItem : Item
     {

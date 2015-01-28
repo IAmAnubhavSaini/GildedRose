@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace GildedRose.Console
 {
@@ -21,6 +22,7 @@ namespace GildedRose.Console
         static void Main()
         {
             var program = new Program();
+            Debug.Assert(program.Items != null);
             program.PrintItems();
             program.UpdateQuality();
             program.PrintItems();
@@ -39,16 +41,18 @@ namespace GildedRose.Console
 
         public void UpdateQuality()
         {
+            Debug.Assert(Items!=null && Items.Count > 0);
             foreach (var item in Items)
             {
+                Debug.Assert(item != null);
                 UpdateQuality(item);
             }
         }
 
-        public Item UpdateQuality(Item item)
+        public void UpdateQuality(Item item)
         {
+            Debug.Assert(item!=null);
             item.Update();
-            return item;
         }
     }
 }
